@@ -1,4 +1,6 @@
+#include <array>
 #include <cstdint>
+#include "span.hpp"
 
 volatile auto const uart0 = reinterpret_cast<uint8_t* const>(0x10009000);
 
@@ -9,23 +11,26 @@ void write(const char* str)
 	}
 }
 
-#include <array>
-#include "span.hpp"
+template<std::size_t N>
+void write(tcb::span<const char, N> s)
+{
+	for(const auto c : s) {
+		*uart0 = c;
+	}
+}
 
 int main() {
 	const char* s = "Hello world from bare-metal!\n";
 	write(s);
-	std::array<char, 8> a = {'h' };
-	auto s1 = tcb::make_span(a);
-	auto s2 = tcb::make_span("Hello");
-	*uart0 = 'A';
-	*uart0 = 'B';
-	*uart0 = 'C';
-	*uart0 = '\n';
-	while (*s != '\0') {
-		*uart0 = *s;
-		s++;
+
+	auto s2 = tcb::make_span("Hello C++\n");
+	write(s2);
+
+	std::array s3 = { 'A', 'B', 'C', '\n' };
+	for(const auto c : s3) {
+		*uart0 = c;
 	}
+
 	while (1) {};
 
 	return 0;
