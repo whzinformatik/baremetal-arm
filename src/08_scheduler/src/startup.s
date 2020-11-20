@@ -83,9 +83,3 @@ bss_loop:
 
 Abort_Exception:
     swi 0xFF
-
-.global IrqHandler
-IrqHandler:
-    ldr r0, =0x10009000
-    ldr r1, [r0]
-    b .
